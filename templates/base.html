@@ -1,0 +1,30 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ToDo — мои задачи{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header class="topbar"><div class="container bar-inner">
+  <a class="brand" href="{% url 'tasks:list' %}"><span class="brand-mark">✓</span> ToDo<span class="brand-note">Личный планировщик</span></a>
+  <nav aria-label="Главная навигация">
+    {% if user.is_authenticated %}
+      <span class="username">{{ user.username }}</span>
+      {% if user.is_staff %}<a href="{% url 'admin:index' %}">Управление</a>{% endif %}
+      <form method="post" action="{% url 'logout' %}" class="inline">{% csrf_token %}<button class="text-button">Выйти</button></form>
+    {% else %}
+      <a href="{% url 'login' %}">Войти</a><a href="{% url 'register' %}" class="button small">Регистрация</a>
+    {% endif %}
+  </nav>
+</div></header>
+<main class="container">
+  {% if messages %}<div class="messages" aria-live="polite">{% for message in messages %}<p class="notice">{{ message }}</p>{% endfor %}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="container footer">ToDo · Всё важное — по порядку</footer>
+</body>
+</html>
+

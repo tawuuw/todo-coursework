@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Вход — ToDo{% endblock %}
+{% block content %}
+<div class="auth-layout">
+<section class="intro"><p class="eyebrow">ПЛАН НА КАЖДЫЙ ДЕНЬ</p><h1>Меньше забытых дел.<br>Больше сделанного.</h1><p class="muted">Соберите задачи в одном месте, распределите по разделам и отмечайте результат.</p><div class="intro-card"><span class="check-circle">✓</span><div><strong>Один список. Понятный порядок.</strong><p>Учёба, работа и личные дела.</p></div></div></section>
+<section class="panel auth-panel"><h2>Войти в аккаунт</h2><p class="muted">Ваши задачи ждут вас.</p>
+<form method="post">{% csrf_token %}
+{% include "includes/fields.html" %}
+{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+<button class="button wide" type="submit">Войти</button>
+</form><p class="auth-bottom">Первый раз здесь? <a href="{% url 'register' %}">Создать аккаунт</a></p>
+</section></div>
+{% endblock %}
+

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — ToDo{% endblock %}
+{% block content %}
+<div class="single-column"><a class="back-link" href="{% url 'login' %}">← На страницу входа</a>
+<section class="panel"><p class="eyebrow">НОВЫЙ АККАУНТ</p><h1>Начните со своего списка</h1><p class="muted">Зарегистрируйтесь, чтобы сохранять личные задачи.</p>
+<form method="post">{% csrf_token %}{% include "includes/fields.html" %}<button class="button wide">Создать аккаунт</button></form>
+</section></div>
+{% endblock %}
+

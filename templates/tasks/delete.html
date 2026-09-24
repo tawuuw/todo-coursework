@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block title %}Удаление задачи — ToDo{% endblock %}
+{% block content %}<div class="single-column"><a class="back-link" href="{% url 'tasks:list' %}">← К моим задачам</a><section class="panel"><p class="eyebrow">ПОДТВЕРЖДЕНИЕ</p><h1>Удалить задачу?</h1><p>«{{ task.title }}» будет удалена из вашего списка. Отменить удаление нельзя.</p><form method="post">{% csrf_token %}<div class="form-actions"><button class="button danger">Удалить</button><a class="button secondary" href="{% url 'tasks:list' %}">Оставить задачу</a></div></form></section></div>{% endblock %}
+

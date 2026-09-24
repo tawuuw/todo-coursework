@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }} — ToDo{% endblock %}
+{% block content %}
+<div class="single-column"><a class="back-link" href="{% url 'tasks:list' %}">← К моим задачам</a><section class="panel"><p class="eyebrow">ШАГ К РЕЗУЛЬТАТУ</p><h1>{{ heading }}</h1>
+{% if has_sections %}<form method="post">{% csrf_token %}{% include "includes/fields.html" %}<div class="form-actions"><button class="button">{{ button }}</button><a class="button secondary" href="{% url 'tasks:list' %}">Отмена</a></div></form>{% else %}<p class="notice">Сначала администратор должен создать хотя бы один раздел.</p>{% if user.is_staff %}<a class="button" href="{% url 'admin:tasks_section_add' %}">Создать раздел</a>{% endif %}{% endif %}
+</section></div>
+{% endblock %}
+
