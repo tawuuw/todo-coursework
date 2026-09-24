@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 
@@ -45,11 +46,24 @@ TEMPLATES = [{
     ]},
 }]
 WSGI_APPLICATION = "config.wsgi.application"
-DATABASES = {"default": {
-    "ENGINE": "django.db.backends.sqlite3",
-    "NAME": os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3")),
-    "OPTIONS": {"timeout": 20},
-}}
+if os.environ.get("DJANGO_USE_SQLITE") == "1":
+    # Only for reading the preserved database from the initial local version.
+    DATABASES = {"default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }}
+else:
+    database_file = BASE_DIR / ".database.json"
+    local_database = json.loads(database_file.read_text(encoding="utf-8")) if database_file.exists() else {}
+    DATABASES = {"default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("PGDATABASE", local_database.get("NAME", "todo_coursework")),
+        "USER": os.environ.get("PGUSER", local_database.get("USER", "todo_user")),
+        "PASSWORD": os.environ.get("PGPASSWORD", local_database.get("PASSWORD", "")),
+        "HOST": os.environ.get("PGHOST", local_database.get("HOST", "127.0.0.1")),
+        "PORT": os.environ.get("PGPORT", local_database.get("PORT", "5432")),
+        "OPTIONS": {"sslmode": os.environ.get("PGSSLMODE", "prefer")},
+    }}
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -76,4 +90,3 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 3600
     SECURE_CONTENT_TYPE_NOSNIFF = True
-

@@ -1,6 +1,6 @@
 # ToDo — мониторинг задач
 
-Курсовая работа, вариант 1. Python 3.12+, Django 5.2, SQLite.
+Курсовая работа, вариант 1. Python 3.12, Django 5.2, PostgreSQL 18.
 
 ## Требования и границы
 
@@ -23,6 +23,13 @@
 
 ## Локальный запуск в Windows
 
+Перед первым запуском установите PostgreSQL, создайте отдельную роль с LOGIN
+и базу todo_coursework, принадлежащую этой роли. Не используйте администратора
+postgres для работы приложения. Задайте переменные PGDATABASE, PGUSER,
+PGPASSWORD, PGHOST, PGPORT в окружении запуска. Альтернатива для локального
+компьютера: файл .database.json с полями NAME, USER, PASSWORD, HOST, PORT.
+Этот файл исключён из Git; пароли не публикуются.
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -33,14 +40,20 @@ python -m venv .venv
 
 Открыть http://127.0.0.1:8001/ . Администратор: http://127.0.0.1:8001/admin/ .
 Сначала администратор создаёт разделы, после этого пользователь создаёт задачи.
-SQLite хранит данные в файле db.sqlite3. Файл и пароли не включаются в Git.
+Данные хранятся на сервере PostgreSQL. При запуске должна работать его служба.
+Старая db.sqlite3 сохраняется локально только как резерв исходных данных.
 
 ## Проверка
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test
+.\.venv\Scripts\python.exe manage.py test --keepdb
 ```
+
+Для тестов администратор PostgreSQL заранее создаёт отдельную базу
+test_todo_coursework с владельцем, совпадающим с пользователем приложения.
+Флаг --keepdb позволяет использовать её без права CREATEDB у приложения.
+Тестовые данные не затрагивают основную базу.
 
 ## Развёртывание
 
@@ -50,5 +63,6 @@ SQLite хранит данные в файле db.sqlite3. Файл и паро�
 
 В облаке необходимо задать DJANGO_SECRET_KEY, DJANGO_DEBUG=0,
 DJANGO_ALLOWED_HOSTS и DJANGO_CSRF_TRUSTED_ORIGINS, выполнить миграции,
-collectstatic и создать отдельного администратора. Базе SQLite требуется
-постоянное дисковое хранилище. Тестовые учётные записи не публикуются.
+collectstatic и создать отдельного администратора. Для облачной PostgreSQL
+задаются PGDATABASE, PGUSER, PGPASSWORD, PGHOST, PGPORT и требуемый площадкой
+PGSSLMODE. Локальные пароли и тестовые учётные записи не публикуются.

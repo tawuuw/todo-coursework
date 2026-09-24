@@ -6,4 +6,5 @@ __pycache__/
 .secret-key
 staticfiles/
 local-access.txt
-
+.database.json
+database-transfer.json
