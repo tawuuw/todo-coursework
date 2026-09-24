@@ -57,6 +57,21 @@ test_todo_coursework с владельцем, совпадающим с поль
 
 ## Развёртывание
 
+Бесплатный вариант: Render Web Service (Free) и PostgreSQL Neon (Free),
+оба в регионе Ohio. Не выбирайте платный тариф Render по умолчанию.
+
+- Build Command: `pip install -r requirements.txt && python manage.py collectstatic --noinput`
+- Start Command: `python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 60`
+- Закрытые переменные Render: `DATABASE_URL` (строка Neon с SSL),
+  `DJANGO_SECRET_KEY` (новый случайный ключ), `DJANGO_DEBUG=0`.
+- Адрес сайта берётся из `RENDER_EXTERNAL_HOSTNAME`, предоставленного Render.
+- Администратора создают отдельно, подключив Django к облачной базе через
+  `DATABASE_URL` и выполнив `manage.py createsuperuser`. Пароль не хранится в Git.
+
+На Free сайт засыпает после простоя; первое открытие может занять около минуты.
+Данные сохраняются в Neon, а не на временном диске Render. Публичный репозиторий
+без подключения GitHub App обновляют кнопкой ручного развёртывания в Render.
+
 Обязательные этапы курсовой: история нескольких коммитов, репозиторий GitHub,
 запуск приложения на облачной PaaS-площадке. Эти этапы фиксируются по факту
 выполнения; локальный запуск не означает завершённое облачное развёртывание.

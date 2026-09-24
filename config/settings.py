@@ -4,7 +4,7 @@ from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
+DEBUG = os.environ.get("DJANGO_DEBUG", "0" if os.environ.get("RENDER") else "1") == "1"
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 if not SECRET_KEY:
     if not DEBUG:
@@ -28,6 +28,7 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -46,7 +47,19 @@ TEMPLATES = [{
     ]},
 }]
 WSGI_APPLICATION = "config.wsgi.application"
-if os.environ.get("DJANGO_USE_SQLITE") == "1":
+if os.environ.get("DATABASE_URL"):
+    from psycopg.conninfo import conninfo_to_dict
+    db_params = conninfo_to_dict(os.environ["DATABASE_URL"])
+    DATABASES = {"default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": db_params.pop("dbname", ""),
+        "USER": db_params.pop("user", ""),
+        "PASSWORD": db_params.pop("password", ""),
+        "HOST": db_params.pop("host", ""),
+        "PORT": db_params.pop("port", "5432"),
+        "OPTIONS": db_params,
+    }}
+elif os.environ.get("DJANGO_USE_SQLITE") == "1":
     # Only for reading the preserved database from the initial local version.
     DATABASES = {"default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -77,6 +90,16 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+if os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    render_hostname = os.environ["RENDER_EXTERNAL_HOSTNAME"]
+    ALLOWED_HOSTS.append(render_hostname)
+    CSRF_TRUSTED_ORIGINS.append("https://" + render_hostname)
+    # Render terminates HTTPS and supplies the original request scheme.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "tasks:list"
